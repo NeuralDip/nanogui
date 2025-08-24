@@ -33,13 +33,11 @@ else()
 endif()
 
 set(NANOGUI_BUILD_SHARED_DEFAULT ON)
-set(NANOGUI_BUILD_PYTHON_DEFAULT ON)
 set(NANOGUI_BUILD_GLFW_DEFAULT ON)
 
 if (CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
   set(CMAKE_CXX_COMPILER_ID "Emscripten")
   set(NANOGUI_BUILD_SHARED_DEFAULT OFF)
-  set(NANOGUI_BUILD_PYTHON_DEFAULT OFF)
   set(NANOGUI_BUILD_GLAD_DEFAULT   OFF)
   set(NANOGUI_BUILD_GLFW_DEFAULT   OFF)
 
@@ -53,7 +51,6 @@ endif()
 
 option(NANOGUI_BUILD_EXAMPLES            "Build NanoGUI example application?" ON)
 option(NANOGUI_BUILD_SHARED              "Build NanoGUI as a shared library?" ${NANOGUI_BUILD_SHARED_DEFAULT})
-option(NANOGUI_BUILD_PYTHON              "Build a Python plugin for NanoGUI?" ${NANOGUI_BUILD_PYTHON_DEFAULT})
 option(NANOGUI_BUILD_GLAD                "Build GLAD OpenGL loader library? (needed on Windows)" ${NANOGUI_BUILD_GLAD_DEFAULT})
 option(NANOGUI_BUILD_GLFW                "Build GLFW?" ${NANOGUI_BUILD_GLFW_DEFAULT})
 option(NANOGUI_INSTALL                   "Install NanoGUI on `make install`?" ON)
@@ -481,50 +478,5 @@ if (NANOGUI_BUILD_EXAMPLES)
   file(COPY resources/icons DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-if (NANOGUI_BUILD_PYTHON)
-  message(STATUS "NanoGUI: building the Python plugin.")
-  if (NOT TARGET pybind11::module)
-    find_package(Python COMPONENTS Interpreter Development REQUIRED)
-
-    # Allow overriding the pybind11 library used to compile NanoGUI
-    set(NANOGUI_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ext/pybind11"
-      CACHE STRING "Path containing the 'pybind11' library used to compile nanogui.")
-
-    add_subdirectory(${NANOGUI_PYBIND11_DIR} ext/pybind11)
-
-    mark_as_advanced(
-      USE_PYTHON_INCLUDE_DIR PYBIND11_INSTALL PYBIND11_TEST PYBIND11_NOPYTHON
-      PYBIND11_FINDPYTHON PYBIND11_PYTHON_VERSION PYBIND11_WERROR
-      NANOGUI_PYBIND11_DIR
-    )
-  endif()
-
-  add_subdirectory(python)
-else()
-  message(STATUS "NanoGUI: not building the Python plugin.")
-endif()
-
-if (NANOGUI_BUILD_PYTHON AND NANOGUI_MASTER_PROJECT)
-  # Create documentation for python plugin (optional target for developers)
-  string(REPLACE " " ";" MKDOC_CXX_FLAGS_LIST ${CMAKE_CXX_FLAGS})
-  get_property(MKDOC_INCLUDE_DIRECTORIES DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-  get_property(MKDOC_COMPILE_DEFINITIONS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY COMPILE_DEFINITIONS)
-
-  foreach (value ${MKDOC_INCLUDE_DIRECTORIES})
-    list(APPEND MKDOC_CXX_FLAGS_LIST -I${value})
-  endforeach()
-
-  # Make sure platform specific code gets kept in py_doc.h (specifically __doc_nanogui_chdir_to_bundle_parent)
-  list(APPEND MKDOC_COMPILE_DEFINITIONS "DOXYGEN_DOCUMENTATION_BUILD")
-  foreach (value ${MKDOC_COMPILE_DEFINITIONS})
-    list(APPEND MKDOC_CXX_FLAGS_LIST -D${value})
-  endforeach()
-
-  add_custom_target(mkdoc USES_TERMINAL COMMAND
-    python3 ${PROJECT_SOURCE_DIR}/docs/mkdoc_rst.py
-      ${MKDOC_CXX_FLAGS_LIST}
-      ${PROJECT_SOURCE_DIR}/include/nanogui/*.h
-      > ${CMAKE_CURRENT_SOURCE_DIR}/python/py_doc.h)
-endif()
 
 # vim: set et ts=2 sw=2 ft=cmake nospell:
