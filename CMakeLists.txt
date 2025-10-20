@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.13..3.18)
+cmake_minimum_required (VERSION 4.0)
 
 project(nanogui
   DESCRIPTION
@@ -307,7 +307,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} ARGS ${bin2c_cmdline}
   DEPENDS ${resources} ${resources_processed}
   COMMENT "Running bin2c"
-  PRE_BUILD VERBATIM)
+  VERBATIM)
 
 # Needed to generated files
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
