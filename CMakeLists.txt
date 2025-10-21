@@ -145,9 +145,9 @@ endif()
 
 # Use C++17, visibility=hidden by default, interprocedural optimization
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_SET hidden)
 
-# Prefer libc++ in conjunction with Clang
+# fer libc++ in conjunction with Clang
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_CXX_FLAGS MATCHES "-stdlib=libc\\+\\+")
   CHECK_CXX_COMPILER_AND_LINKER_FLAGS(HAS_LIBCPP "-stdlib=libc++" "-stdlib=libc++")
   if (HAS_LIBCPP)
@@ -179,7 +179,7 @@ if (NANOGUI_BUILD_GLFW)
   set(BUILD_SHARED_LIBS ${NANOGUI_BUILD_SHARED} CACHE BOOL " " FORCE)
 
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # Quench annoying deprecation warnings when compiling GLFW on OSX
+    # Quench annoying decation warnings when compiling GLFW on OSX
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
   endif()
 
